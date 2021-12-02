@@ -10,15 +10,17 @@ int main (int argc, char* argv[]) {
         fscanf(f, "%d", &window[i]);
         sum += window[i];
     }
-    while (! feof(f)) {
+    while (1) {
         int line;
         fscanf(f, "%d", &line);
+
         int newsum = line + sum - window[0];
         if (newsum > sum) ++tally;
         window[0] = window[1];
         window[1] = window[2];
         window[2] = line;
         sum = newsum;
+        if (feof(f)) break;
     }
     printf("%d\n", tally);
     return 0;
