@@ -19,8 +19,8 @@ sub process {
 }
 
 
-chomp( my @list = <> );
-my @oxygen = my @co2 = @list;
+chomp( my @oxygen = <> );
+my @co2 = @oxygen;
 tr/01/10/ for @co2;
 
 my $oxygen = process(\@oxygen, 1);
