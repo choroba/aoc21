@@ -4,12 +4,11 @@ use strict;
 use feature qw{ say };
 
 use ARGV::OrDATA;
+use List::Util qw{ sum };
 
 use constant MAX => 4;
 
-my @numbers = split /,/, <>;
-chomp($numbers[-1]);
-
+my @numbers;
 my @boards;
 my %where;
 
@@ -17,53 +16,45 @@ sub mark {
     my ($n) = @_;
     for my $w (keys %{ $where{$n} }) {
         my ($board, $y, $x) = split ' ', $w;
-        ++$where{$n}{$w};
-        ++$boards[$board][$y][$x][1];
+        delete $boards[$board]{nums}{$n};
+        return $board unless --$boards[$board]{cols}{$x};
+        return $board unless --$boards[$board]{rows}{$y};
     }
+    return
 }
 
-sub check {
-    my ($n) = @_;
-    my @win;
-    for my $board (0 .. $#boards) {
-        for my $row (0 .. MAX) {
-            push @win, $board if 1 + MAX == grep $_->[1], @{ $boards[$board][$row] };
-        }
-        for my $col (0 .. MAX) {
-            push @win, $board if 1 + MAX == grep $_->[$col][1], @{ $boards[$board] }
-        }
-    }
-    return @win
-}
-
-sub win {
+sub score {
     my ($n, $board) = @_;
-    my $sum = 0;
-    $sum += $_->[0] for grep ! $_->[1], map @$_, @{ $boards[$board] };
-    return $sum * $n
+    return sum(keys %{ $boards[$board]{nums} }) * $n
 }
+
+@numbers = split /,/, <>;
+chomp($numbers[-1]);
 
 while (<>) {
     chomp;
     if ("" eq $_) {
-        push @boards, [];
+        push @boards, {};
     } else {
-        push @{ $boards[-1] }, [map [$_, 0], split];
+        my @ns = split;
         for my $i (0 .. MAX) {
             my $board = $#boards;
-            my $y = $#{ $boards[-1] };
-            my $n = $boards[-1][-1][$i][0];
+            my $y = int(keys(%{ $boards[-1]{nums} }) / (1 + MAX));
+            my $n = $ns[$i];
             undef $where{$n}{"$board $y $i"};
+            ++$boards[$board]{cols}{$i};
+            ++$boards[$board]{rows}{$y};
+            undef $boards[$board]{nums}{$n};
         }
     }
 }
 
 for my $n (@numbers) {
-    mark($n);
-    my @win = check($n);
-    next unless @win;
+    my $win = mark($n);
+    next unless defined $win;
 
-    say win($n, @win);
+    my $score = score($n, $win);
+    say $score;
     last
 }
 
