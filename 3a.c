@@ -37,7 +37,7 @@ void get_frequencies (int width, FILE* f, int bit_frequency[][2]) {
 }
 
 void get_gamma_epsilon (int width, int bit_frequency[][2],
-                        int *gamma, int *epsilon) {
+                        long int *gamma, long int *epsilon) {
     *gamma = *epsilon = 0;
     int pow = 1;
     for (int i = width - 1; i >= 0; --i) {
@@ -57,9 +57,9 @@ int main(int argc, char* argv[]) {
     int bit_frequency[width][2];
     get_frequencies(width, f, &bit_frequency[0]);
 
-    int gamma, epsilon;
+    long int gamma, epsilon;
     get_gamma_epsilon(width, &bit_frequency[0], &gamma, &epsilon);
 
-    printf("%d\n", gamma * epsilon);
+    printf("%ld\n", gamma * epsilon);
     return 0;
 }
