@@ -9,61 +9,45 @@ use List::Util qw{ sum };
 my $sum = 0;
 while (<>) {
     my @digits = map join("", sort split //), split / \| |\s/;
+    my @summable = splice @digits, -4;
     my %mapping = (abcdefg => 8);;
 
     my ($d7) = grep 3 == length, @digits;
-    $mapping{$d7} = 7 if $d7;
+    $mapping{$d7} = 7;
 
     my ($d1) = grep 2 == length, @digits;
-    $mapping{$d1} = 1 if $d1;
+    $mapping{$d1} = 1;
 
-    if ($d1 && $d7) {
-        ($mapping{A}) = $d7 =~ /([^$d1])/;
-    }
+    ($mapping{A}) = $d7 =~ /([^$d1])/;
 
     my ($d4) = grep 4 == length, @digits;
-    if ($d4) {
-        $mapping{$d4} = 4;
-        my ($d9) = grep 6 == length && (my $c = () = /([$d4])/g) == 4, @digits;
-        $mapping{$d9} = 9 if $d9;
-        if ($d9) {
-            $mapping{E} = 'abcdefg' =~ s/[$d9]//gr;
-        }
-        if ($d7) {
-            $mapping{G} = $d9 =~ s/[$d7$d4]//gr;
+    $mapping{$d4} = 4;
+    my ($d9) = grep 6 == length && (my $c = () = /([$d4])/g) == 4, @digits;
+    $mapping{$d9} = 9;
+    $mapping{E} = 'abcdefg' =~ s/[$d9]//gr;
+    $mapping{G} = $d9 =~ s/[$d7$d4]//gr;
 
-            for my $d0 (grep 6 == length, @digits) {
-                my $c = () = $d0 =~ /([^$d7$mapping{E}$mapping{G}])/g;
-                next if 1 != $c;
+    for my $d0 (grep 6 == length, @digits) {
+        my $c = () = $d0 =~ /([^$d7$mapping{E}$mapping{G}])/g;
+        next if 1 != $c;
 
-                $mapping{B} = $1;
-                $mapping{$d0} = 0;
-                $mapping{D} = 'abcdefg';
-                $mapping{D} =~ s/[$d0]//g;
-
-                my $p = join "", @mapping{qw{ A B E G D }};
-                my ($d6) = grep 6 == length && (my $c1 = () = /[^$p]/g) == 1, @digits;
-                if ($d6) {
-                    $mapping{$d6} = 6;
-                    my ($d9) = grep 6 == length && ! /$d0|$d6/, @digits;
-                    $mapping{$d9} = 9;
-
-                    if ($d1) {
-                        $mapping{C} = $d1;
-                        $mapping{C} =~ s/([$d6])//g;
-                        $mapping{F} = $1;
-
-                        for my $d (grep 5 == length, @digits) {
-                            my $p = join "", map 0+($d =~ /$mapping{$_}/), qw( C F );
-                            $mapping{$d} = {'01' => 5, '10' => 2, '11' => 3}->{$p};
-                        }
-                    }
-                }
-                last
-            }
-        }
+        $mapping{B} = $1;
+        $mapping{$d0} = 0;
+        $mapping{D} = 'abcdefg' =~ s/[$d0]//gr;
     }
-    my $n = join "", @mapping{ @digits[-4 .. -1] };
+
+    my $p = join "", @mapping{qw{ A B E G D }};
+    my ($d6) = grep 6 == length && (my $c1 = () = /[^$p]/g) == 1, @digits;
+    $mapping{$d6} = 6;
+    $mapping{C} = $d1 =~ s/([$d6])//gr;
+    $mapping{F} = $1;
+
+    for my $d (grep 5 == length, @digits) {
+        my $p = join "", map 0+($d =~ /$mapping{$_}/), qw( C F );
+        $mapping{$d} = {'01' => 5, '10' => 2, '11' => 3}->{$p};
+    }
+
+    my $n = join "", @mapping{@summable};
     $sum += $n;
 }
 say $sum;
