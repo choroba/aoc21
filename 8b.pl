@@ -4,7 +4,6 @@ use strict;
 use feature qw{ say };
 
 use ARGV::OrDATA;
-use List::Util qw{ sum };
 
 my $sum = 0;
 while (<>) {
