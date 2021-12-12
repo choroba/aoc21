@@ -3,6 +3,8 @@ use warnings;
 use strict;
 use feature qw{ say };
 
+use constant DUPLICATE => 1;
+
 use ARGV::OrDATA;
 
 my %caves;
@@ -13,26 +15,23 @@ while (<>) {
     undef $caves{$to}{$from};
 }
 
-my @paths = (['start']);
-while (my @extendable = grep $paths[$_]->[-1] ne 'end', 0 .. $#paths) {
+my @paths = ([['start'], 0]);
+while (my @extendable = grep $paths[$_][0]->[-1] ne 'end', 0 .. $#paths) {
     for my $ie (reverse @extendable) {
         my $e = splice @paths, $ie, 1;
-        for my $next (keys %{ $caves{ $e->[-1] } }) {
-            my @new = (@$e, $next);
+        for my $next (keys %{ $caves{ $e->[0][-1] } }) {
+            next if $next eq 'start';
+
+            my @new = (@{ $e->[0] }, $next);
             if ($next =~ /^[[:upper:]]/o) {
-                push @paths, \@new;
+                push @paths, [\@new, $e->[DUPLICATE]];
+
+            } elsif ($e->[DUPLICATE]) {
+                push @paths, [\@new, 1]
+                    unless grep $next eq $_, @{ $e->[0] };
+
             } else {
-                my %freq;
-                ++$freq{$_} for @new;
-                my $ok = 2;
-                for my $cave (keys %freq) {
-                    if ($cave =~ /^[[:lower:]]/o && $freq{$cave} > 1) {
-                        --$ok;
-                        $ok = 0 if $freq{$cave} > 2 
-                                || grep $_ eq $cave, 'start', 'end';
-                    }
-                }
-                push @paths, \@new if $ok > 0;
+                push @paths, [\@new, 0+!! grep $next eq $_, @{ $e->[0] }];
             }
         }
     }
