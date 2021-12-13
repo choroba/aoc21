@@ -1,0 +1,15 @@
+#!/bin/bash
+for pl in *.pl ; do
+    py=${pl%l}y
+    n=${pl%[ab]*}
+    if [[ ! -x $py ]] ; then
+        echo Cannot run $py >&2
+        continue
+    fi
+
+    if [[ -f $n.in ]] ; then
+        diff -u <($pl $n.in) <($py $n.in)
+    else
+        echo $n.in not found >&2
+    fi
+done
