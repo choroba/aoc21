@@ -8,7 +8,9 @@ for pl in *.pl ; do
     fi
 
     if [[ -f $n.in ]] ; then
-        diff -u <($pl $n.in) <($py $n.in)
+        if diff -u <($pl $n.in) <($py $n.in) ; then
+            echo $n ✓
+        fi
     else
         echo $n.in not found >&2
     fi
