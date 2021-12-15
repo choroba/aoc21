@@ -9,7 +9,7 @@ for pl in *.pl ; do
 
     if [[ -f $n.in ]] ; then
         if diff -u <($pl $n.in) <($py $n.in) ; then
-            echo $n ✓
+            echo ${pl%.pl} ✓
         fi
     else
         echo $n.in not found >&2
