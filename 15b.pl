@@ -18,7 +18,7 @@ for my $tilex (0 .. 4) {
         for my $x (0 .. $smallx) {
             for my $y (0 .. $smally) {
                 $cave[$tilex * (1 + $smallx) + $x][$tiley * (1 + $smally) + $y]
-                    = [(($cave[$x][$y][0] + $tilex + $tiley) % 9 ) || 9]
+                    = [(($cave[$x][$y][0] + $tilex + $tiley) % 9 ) || 9];
             }
         }
     }
