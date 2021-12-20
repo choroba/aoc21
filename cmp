@@ -1,5 +1,5 @@
 #!/bin/bash
-for pl in *.pl ; do
+for pl in ?[ab].pl ??[ab].pl ; do
     py=${pl%l}y
     n=${pl%[ab]*}
     if [[ ! -x $py ]] ; then
